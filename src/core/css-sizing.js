@@ -1,4 +1,4 @@
-module.exports = (function(window, document) {
+module.exports = (((window, document) => {
 	
 	// import dependencies
 	var cssStyle  = require('css-style'),
@@ -167,4 +167,4 @@ module.exports = (function(window, document) {
 	
 	return cssSizing;
 	
-})(window, document)
+}))(window, document)

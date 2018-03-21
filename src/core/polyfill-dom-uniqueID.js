@@ -1,4 +1,4 @@
-void function() {
+void (() => {
 	if(!('uniqueID' in document.documentElement)) {
 		var uniqueID_counter = 0;
 		Object.defineProperty(Element.prototype, 'uniqueID', {get: function() {
@@ -9,4 +9,4 @@ void function() {
 			}
 		}});
 	}
-}();
+})();

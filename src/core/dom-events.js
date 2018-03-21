@@ -1,4 +1,4 @@
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	require('polyfill-dom-console');
 
@@ -175,7 +175,7 @@ module.exports = (function(window, document) { "use strict";
 			try { 
 				ls[i](event);
 			} catch(ex) {
-				setImmediate(function() { throw ex; });
+				setImmediate(() => { throw ex; });
 			}
 		}
 		
@@ -184,4 +184,4 @@ module.exports = (function(window, document) { "use strict";
 	
 	return domEvents;
 	
-})(window, document);
+}))(window, document);

@@ -14,7 +14,7 @@
 // TODO: improve event streams
 // - look for a few optimizations ideas in gecko/webkit
 // - use arrays in CompositeEventStream to avoid nested debouncings
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	///
 	/// event stream implementation
@@ -24,7 +24,7 @@ module.exports = (function(window, document) { "use strict";
 		var self=this;
 		
 		// validate arguments
-		if(!disconnect) disconnect=function(){};
+		if(!disconnect) disconnect=() => {};
 		if(!reconnect) reconnect=connect;
 		
 		// high-level states
@@ -34,11 +34,11 @@ module.exports = (function(window, document) { "use strict";
 		
 		// global variables
 		var callback=null;
-		var yieldEvent = function() {
+		var yieldEvent = () => {
 			
 			// call the callback function, and pend disposal
 			shouldDisconnect=true;
-			try { callback && callback(self); } catch(ex) { setImmediate(function() { throw ex; }); }
+			try { callback && callback(self); } catch(ex) { setImmediate(() => { throw ex; }); }
 			
 			// if no action was taken, dispose
 			if(shouldDisconnect) { dispose(); }
@@ -46,7 +46,7 @@ module.exports = (function(window, document) { "use strict";
 		}
 		
 		// export the interface
-		var schedule = this.schedule = function(newCallback) {
+		var schedule = this.schedule = newCallback => {
 		
 			// do not allow to schedule on disconnected event streams
 			if(isDisconnected) { throw new Error("Cannot schedule on a disconnected event stream"); }
@@ -66,7 +66,7 @@ module.exports = (function(window, document) { "use strict";
 			}
 		}
 		
-		var dispose = this.dispose = function() {
+		var dispose = this.dispose = () => {
 		
 			// do not allow to dispose non-connected streams
 			if(isConnected) {
@@ -125,7 +125,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// handle the synchronous nature of mutation events
 		var yieldEvent=null;
-		var yieldEventDelayed = function() {
+		var yieldEventDelayed = () => {
 			if(scheduled) return;
 			window.removeEventListener(pointermove, yieldEventDelayed, true);
 			scheduled = requestAnimationFrame(yieldEvent);
@@ -163,7 +163,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// handle the synchronous nature of mutation events
 		var yieldEvent=null;
-		var yieldEventDelayed = function() {
+		var yieldEventDelayed = () => {
 			if(scheduled) return;
 			window.removeEventListener(pointerup, yieldEventDelayed, true);
 			window.removeEventListener(pointerdown, yieldEventDelayed, true);
@@ -244,7 +244,7 @@ module.exports = (function(window, document) { "use strict";
 			
 			// handle the synchronous nature of mutation events
 			var yieldEvent=null;
-			var yieldEventDelayed = function() {
+			var yieldEventDelayed = () => {
 				if(scheduled || !yieldEventDelayed) return;
 				document.removeEventListener("DOMContentLoaded", yieldEventDelayed, false);
 				document.removeEventListener("DOMContentLoaded", yieldEventDelayed, false);
@@ -284,7 +284,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// handle the filtering nature of focus events
 		var yieldEvent=null; var previousActiveElement=null; var previousHasFocus=false; var rid=0;
-		var yieldEventDelayed = function() {
+		var yieldEventDelayed = () => {
 			
 			// if the focus didn't change
 			if(previousActiveElement==document.activeElement && previousHasFocus==document.hasFocus()) {
@@ -329,7 +329,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// fields
 		var yieldEvent=null; var s1=false, s2=false;
-		var yieldEventWrapper=function(s) { 
+		var yieldEventWrapper=s => { 
 			if(s==stream1) s1=true;
 			if(s==stream2) s2=true;
 			if(s1&&s2) return;
@@ -368,4 +368,4 @@ module.exports = (function(window, document) { "use strict";
 		CompositeEventStream:       CompositeEventStream
 	};
 
-})(window, document);
+}))(window, document);

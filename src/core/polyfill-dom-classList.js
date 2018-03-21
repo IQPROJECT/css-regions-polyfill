@@ -1,7 +1,7 @@
 // Based on https://github.com/remy/polyfills/blob/master/classList.js by Remy Sharp
 // Licensed under the MIT License
 
-!(function(window, document) {
+!(((window, document) => {
 
 	if (typeof window.Element === "undefined" || "classList" in document.documentElement) return;
 
@@ -92,8 +92,8 @@
 
 	defineElementGetter(Element.prototype, 'classList', function() {
 		var classList = new DOMTokenList(this);
-		defineElementGetter(this, 'classList', function() { return classList; });
+		defineElementGetter(this, 'classList', () => classList);
 		return classList;
 	});
 
-})(window, document);
+}))(window, document);

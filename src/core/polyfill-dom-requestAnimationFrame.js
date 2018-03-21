@@ -1,4 +1,4 @@
-void function() {
+void (() => {
 	
 	// request animation frame
     var vendors = ['webkit', 'moz', 'ms', 'o'];
@@ -10,7 +10,7 @@ void function() {
     if (!window.requestAnimationFrame || !window.cancelAnimationFrame) {
 		
 		// tick every 16ms
-        var listener_index = 0; var listeners = []; var tmp = []; var tick = function() {
+        var listener_index = 0; var listeners = []; var tmp = []; var tick = () => {
 			var now = +(new Date()); var callbacks = listeners; listeners = tmp;
 			for(var i = 0; i<callbacks.length; i++) { callbacks[i](now); }
 			listener_index += callbacks.length; callbacks.length = 0; tmp = callbacks;
@@ -18,14 +18,12 @@ void function() {
 		}; tick();
 		
 		// add a listener
-        window.requestAnimationFrame = function(callback) {
-            return listener_index + listeners.push(callback);
-        };
+        window.requestAnimationFrame = callback => listener_index + listeners.push(callback);
 		
 		// remove a listener
-        window.cancelAnimationFrame = function(index) {
+        window.cancelAnimationFrame = index => {
 			index -= listener_index; if(index >= 0 && index < listeners.length) {
-				listeners[index] = function() {};
+				listeners[index] = () => {};
 			}
 		};
 		
@@ -33,8 +31,8 @@ void function() {
 	
 	// setImmediate
 	if(!window.setImmediate) {
-		window.setImmediate = function(f) { return setTimeout(f, 0) };
+		window.setImmediate = f => setTimeout(f, 0);
 		window.cancelImmediate = clearTimeout;
 	}
 	
-}();
+})();

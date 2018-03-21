@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function(grunt) {
+  require('load-grunt-tasks')(grunt);
 
 	// Import the dependencies
 	var url = require('url');
@@ -133,16 +134,16 @@ module.exports = function(grunt) {
 			}
 		},
 		
-		uglify: {
-			options: {
-				banner: '<%= banner %>',
-				sourceMap: true
-			},
-			bin: {
-				src: '<%= concat.bin.dest %>',
-				dest: 'bin/<%= pkg.name %>.min.js'
-			},
-		},
+//		uglify: {
+//			options: {
+//				banner: '<%= banner %>',
+//				sourceMap: true
+//			},
+//			bin: {
+//				src: '<%= concat.bin.dest %>',
+//				dest: 'bin/<%= pkg.name %>.min.js'
+//			},
+//		},
 		
 		nodeunit: {
 			files: ['test/**/*_test.js']
@@ -185,8 +186,8 @@ module.exports = function(grunt) {
 
 	
 	// These plugins provide some necessary tasks.
-	grunt.loadNpmTasks('grunt-contrib-concat-sourcemaps'); //grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-concat-sourcemap'); //grunt.loadNpmTasks('grunt-contrib-concat');
+	//grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
@@ -243,6 +244,6 @@ module.exports = function(grunt) {
 	});
 
 	// Default task.
-	grunt.registerTask('default', [ /*'jshint', 'nodeunit', */'findreq', 'concat', 'uglify']);
+	grunt.registerTask('default', [ /*'jshint', 'nodeunit', */'findreq', 'concat']);
 
 };

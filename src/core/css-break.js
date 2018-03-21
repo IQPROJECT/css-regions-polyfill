@@ -1,4 +1,4 @@
-module.exports = (function(window, document) { "use strict"; 
+module.exports = (((window, document) => { "use strict"; 
 
 	var cssSyntax = require('core:css-syntax');
 	var cssCascade = require('core:css-cascade');
@@ -41,10 +41,9 @@ module.exports = (function(window, document) { "use strict";
 			if(typeof(isReplaced)=="undefined") isReplaced = this.isReplacedElement(element);
 			
 			return (
-				elementDisplay === "inline-block"
+				(elementDisplay === "inline-block"
 				|| elementDisplay === "inline-table"
-				|| elementDisplay === "inline-flex"
-				|| elementDisplay === "inline-grid"
+				|| elementDisplay === "inline-flex" || elementDisplay === "inline-grid")
 				// TODO: more
 			) && (
 				elementPosition === "static"
@@ -427,4 +426,4 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssBreak;
 	
-})(window, document);
+}))(window, document);

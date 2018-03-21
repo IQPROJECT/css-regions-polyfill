@@ -1,6 +1,6 @@
 // TODO: comment about the 'no_auto_stylesheet_detection' flag?
 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 	
 	// import dependencies
 	require('polyfill-dom-console');
@@ -89,7 +89,7 @@ module.exports = (function(window, document) { "use strict";
 			var results = [];
 			
 			// walk the whole stylesheet...
-			var visit = function(rules) {
+			var visit = rules => {
 				try {
 					for(var r = rules.length; r--; ) {
 						var rule = rules[r]; 
@@ -137,7 +137,7 @@ module.exports = (function(window, document) { "use strict";
 									else if(element.mozMatchesSelector) isMatching=element.mozMatchesSelector(selector)
 									else if(element.webkitMatchesSelector) isMatching=element.webkitMatchesSelector(selector)
 									else { throw new Error("no element.matches?") }
-								} catch(ex) { debugger; setImmediate(function() { throw ex; }) }
+								} catch(ex) { debugger; setImmediate(() => { throw ex; }) }
 								
 								// if yes, add it to the list of matched selectors
 								if(isMatching) { results.push(subrules[sr]); }
@@ -153,7 +153,7 @@ module.exports = (function(window, document) { "use strict";
 						
 					}
 				} catch (ex) {
-					setImmediate(function() { throw ex; });
+					setImmediate(() => { throw ex; });
 				}
 			}
 			
@@ -327,7 +327,7 @@ module.exports = (function(window, document) { "use strict";
 					: cssCascade.findAllMatchingRules(element)
 				);
 				
-				var visit = function(rules) {
+				var visit = rules => {
 					
 					for(var i=rules.length; i--; ) {
 						
@@ -591,14 +591,14 @@ module.exports = (function(window, document) { "use strict";
 				var rules = atrule.toStylesheet().value;
 				cssCascade.updateMedia(rules, !media.matches, false);
 				media.addListener(
-					function(newMedia) { cssCascade.updateMedia(rules, !newMedia.matches, true); }
+					newMedia => { cssCascade.updateMedia(rules, !newMedia.matches, true); }
 				);
 				
 				// it seems I like taking risks...
 				cssCascade.startMonitoringStylesheet(rules);
 				
 			} catch(ex) {
-				setImmediate(function() { throw ex; })
+				setImmediate(() => { throw ex; })
 			}
 		},
 		
@@ -697,9 +697,7 @@ module.exports = (function(window, document) { "use strict";
 		toCamelCase: function toCamelCase(variable) { 
 			return variable.replace(
 				/-([a-z])/g, 
-				function(str,letter) { 
-					return letter.toUpperCase();
-				}
+				(str, letter) => letter.toUpperCase()
 			);
 		},
 		
@@ -714,7 +712,7 @@ module.exports = (function(window, document) { "use strict";
 					
 					// check we know which element we work on
 					try { if(!this.parentElement) throw new Error("Please use the anHTMLElement.myStyle property to get polyfilled properties") }
-					catch(ex) { setImmediate(function() { throw ex; }); return ''; }
+					catch(ex) { setImmediate(() => { throw ex; }); return ''; }
 					
 					try { 
 						// non-computed style: return the local style of the element
@@ -735,7 +733,7 @@ module.exports = (function(window, document) { "use strict";
 
 					// check we know which element we work on
 					try { if(!this.parentElement) throw new Error("Please use the anHTMLElement.myStyle property to set polyfilled properties") }
-					catch(ex) { setImmediate(function() { throw ex; }); return; }
+					catch(ex) { setImmediate(() => { throw ex; }); return; }
 					
 					// modify the local style of the element
 					if(this.parentElement.getAttribute('data-style-'+cssPropertyName) != v) {
@@ -791,7 +789,7 @@ module.exports = (function(window, document) { "use strict";
 	if(!("no_auto_stylesheet_detection" in window)) {
 		
 		cssCascade.loadAllStyleSheets();
-		document.addEventListener("DOMContentLoaded", function() {
+		document.addEventListener("DOMContentLoaded", () => {
 			cssCascade.loadAllStyleSheets();
 			querySelectorLive(
 				cssCascade.selectorForStylesheets,
@@ -808,4 +806,4 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssCascade;
 
-})(window, document);
+}))(window, document);

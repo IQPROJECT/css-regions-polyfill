@@ -1,4 +1,4 @@
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 	
 	var VSS_COUNT = 0;
 	function VirtualStylesheetFactory() {
@@ -14,14 +14,12 @@ module.exports = (function(window, document) { "use strict";
 		// grab its stylesheet object
 		var ss = styleElement.sheet;
 		if(!ss.cssRules) ss.cssRules = ss.rules;
-		ss.removeRule = ss.removeRule || function(i) {
-			return ss.deleteRule(i);
-		}
-		ss.addRule = ss.addRule || function(s,d,i) {
+		ss.removeRule = ss.removeRule || (i => ss.deleteRule(i))
+		ss.addRule = ss.addRule || ((s, d, i) => {
 			var rule = s+'{'+d+'}'
 			var index = typeof(i)=='number' ? i : ss.cssRules.length;
 			return ss.insertRule(rule, index);
-		}
+		})
 		
 		// create the mapping table
 		var rules = [];
@@ -35,7 +33,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// add the methods
 		
-		This.addRule = function(selector, declarations, stylesheet, enabled) {
+		This.addRule = (selector, declarations, stylesheet, enabled) => {
 			
 			// convert selector & declarations to a non-empty string
 			selector = '' + selector + ' ';
@@ -51,7 +49,7 @@ module.exports = (function(window, document) { "use strict";
 			
 		}
 		
-		This.disableAllRules = function(stylesheet) {
+		This.disableAllRules = stylesheet => {
 			var ssIndex = ss.cssRules.length;
 			for(var i = rules.length; i--;) { var rule = rules[i];
 				if(rule.enabled) {
@@ -64,7 +62,7 @@ module.exports = (function(window, document) { "use strict";
 			}
 		}
 		
-		This.enableAllRules = function(stylesheet) {
+		This.enableAllRules = stylesheet => {
 			var ssIndex = 0;
 			for(var i = 0; i<rules.length; i++) { var rule = rules[i];
 				if(rule.enabled) {
@@ -79,7 +77,7 @@ module.exports = (function(window, document) { "use strict";
 			}
 		}
 		
-		This.deleteAllRules = function(stylesheet) {
+		This.deleteAllRules = stylesheet => {
 			var ssIndex = ss.cssRules.length;
 			for(var i = rules.length; i--;) { var rule = rules[i];
 				if(rule.enabled) {
@@ -142,4 +140,4 @@ module.exports = (function(window, document) { "use strict";
 	VirtualStylesheetFactory.VirtualStylesheetFactory = VirtualStylesheetFactory;
 	return VirtualStylesheetFactory;
 	
-})(window, document)
+}))(window, document)

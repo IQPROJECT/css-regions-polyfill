@@ -1,4 +1,4 @@
-module.exports = (function(window) { "use strict"; 
+module.exports = ((window => { "use strict"; 
 	
 	///
 	/// get the common ancestor from a list of nodes
@@ -40,4 +40,4 @@ module.exports = (function(window) { "use strict";
 	
 	return getCommonAncestor;
 
-})(window);
+}))(window);

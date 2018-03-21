@@ -1,8 +1,8 @@
 /*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas. Dual MIT/BSD license */
-window.matchMedia = window.matchMedia || (function( doc, undefined ) {
+window.matchMedia = window.matchMedia || (((doc, undefined) => {
 
   "use strict"; var element;
-  return function(q){
+  return q => {
 
     if(!element) {
         var head = doc.head || doc.documentElement.firstElementChild || doc.getElementsByTagName('head')[0],
@@ -22,37 +22,35 @@ window.matchMedia = window.matchMedia || (function( doc, undefined ) {
 
   };
 
-}( document ));
+})( document ));
 
 /*! matchMedia() polyfill addListener/removeListener extension. Author & copyright (c) 2012: Scott Jehl. Dual MIT/BSD license */
-(function(){
+((() => {
 	// monkeypatch unsupported addListener/removeListener with polling
 	if( !window.matchMedia( "all" ).addListener ){
 		
 		var wMM = window.matchMedia;
-		var oldMM = function(q) {
-			return wMM.call(window,q);
-		}
+		var oldMM = q => wMM.call(window,q)
 		
-		window.matchMedia = function( q ){
+		window.matchMedia = q => {
 			var ret = oldMM( q ),
 				listeners = [],
 				last = ret.matches,
 				timer,
-				check = function(){
+				check = () => {
 					var list = oldMM( q );
                     
 					if( last != list.matches ){
 						last = list.matches;
 						for( var i =0, il = listeners.length; i< il; i++ ){
 							try { listeners[ i ].call( ret, list ); }
-							catch(ex) { setTimeout(function() { throw ex; },0) }
+							catch(ex) { setTimeout(() => { throw ex; },0) }
 						}
 					}
                     
 				};
 			
-			ret.addListener = function( cb ){
+			ret.addListener = cb => {
 				if( listeners.indexOf(cb) == -1 ) {
 					listeners.push( cb );
 				}
@@ -61,7 +59,7 @@ window.matchMedia = window.matchMedia || (function( doc, undefined ) {
 				}
 			};
 
-			ret.removeListener = function( cb ){
+			ret.removeListener = cb => {
 				for( var i =0, il = listeners.length; i< il; i++ ){
 					if( listeners[ i ] === cb ){
 						listeners.splice( i, 1 ); break;
@@ -75,4 +73,4 @@ window.matchMedia = window.matchMedia || (function( doc, undefined ) {
 			return ret;
 		};
 	}
-}());
+})());

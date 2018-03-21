@@ -2,7 +2,7 @@
 // The CSS Style module attempts to provide helpers to deal with Style Declarations and elements
 // [0] http://lists.w3.org/Archives/Public/www-style/2013Sep/0283.html
 //
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	function usedStyleOf(element) {
 		var style = element.usedStyle || getComputedStyle(element);
@@ -103,4 +103,4 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssStyle;
 
-})(window);
+}))(window);

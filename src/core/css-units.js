@@ -1,7 +1,7 @@
 //
 // The CSS Units module is handling conversions between units
 //
-module.exports = (function(window, document) {
+module.exports = (((window, document) => {
 	
 	// import dependencies
 	var getBox = require('css-box').getBox;
@@ -127,4 +127,4 @@ module.exports = (function(window, document) {
 	
 	return cssUnits;
 
-})(window, document);
+}))(window, document);

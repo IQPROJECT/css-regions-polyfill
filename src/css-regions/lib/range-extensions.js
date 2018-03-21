@@ -23,7 +23,7 @@ if(!document.caretRangeFromPoint) {
         
         var TextRangeUtils = {
             convertToDOMRange: function (textRange, document) {
-                var adoptBoundary = function(domRange, textRangeInner, bStart) {
+                var adoptBoundary = (domRange, textRangeInner, bStart) => {
                     // iterate backwards through parent element to find anchor location
                     var cursorNode = document.createElement('a'), cursor = textRangeInner.duplicate();
                     cursor.collapse(bStart);
@@ -56,7 +56,7 @@ if(!document.caretRangeFromPoint) {
             },
 
             convertFromDOMRange: function (domRange) {
-                var adoptEndPoint = function(textRange, domRangeInner, bStart) {
+                var adoptEndPoint = (textRange, domRangeInner, bStart) => {
                     // find anchor node and offset
                     var container = domRangeInner[bStart ? 'startContainer' : 'endContainer'];
                     var offset = domRangeInner[bStart ? 'startOffset' : 'endOffset'], textOffset = 0;

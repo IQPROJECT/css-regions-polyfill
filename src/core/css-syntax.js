@@ -2,7 +2,7 @@
 // note: this file is based on Tab Atkins's CSS Parser
 // please include him (@tabatkins) if you open any issue for this file
 // 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 // 
 // exports
@@ -24,10 +24,10 @@ function TokenList() {
 }
 function TokenListToCSSString(sep) {
 	if(sep) {
-		return this.map(function(o) { return o.toCSSString(); }).join(sep);
+		return this.map(o => o.toCSSString()).join(sep);
 	} else {
 		return this.asCSSString || (this.asCSSString = (
-			this.map(function(o) { return o.toCSSString(); }).join("/**/")
+			this.map(o => o.toCSSString()).join("/**/")
 				.replace(/( +\/\*\*\/ *| * | *\/\*\*\/ +)/g," ")
 				.replace(/( +\/\*\*\/ *| * | *\/\*\*\/ +)/g," ")
 				.replace(/(\!|\:|\;|\@|\.|\,|\*|\=|\&|\\|\/|\<|\>|\[|\{|\(|\]|\}|\)|\|)\/\*\*\//g,"$1")
@@ -102,25 +102,25 @@ function tokenize(str) {
 	var column = 0;
 	// The only use of lastLineLength is in reconsume().
 	var lastLineLength = 0;
-	var incrLineno = function() {
+	var incrLineno = () => {
 		line += 1;
 		lastLineLength = column;
 		column = 0;
 	};
 	var locStart = {line:line, column:column};
 
-	var codepoint = function(i) {
+	var codepoint = i => {
 		if(i >= str.length) {
 			return -1;
 		}
 		return str[i];
 	}
-	var next = function(num) {
+	var next = num => {
 		if(num === undefined) { num = 1; }
 		if(num > 3) { throw "Spec Error: no more than three codepoints of lookahead."; }
 		return codepoint(i+num);
 	};
-	var consume = function(num) {
+	var consume = num => {
 		if(num === undefined)
 			num = 1;
 		i += num;
@@ -130,7 +130,7 @@ function tokenize(str) {
 		//console.log('Consume '+i+' '+String.fromCharCode(code) + ' 0x' + code.toString(16));
 		return true;
 	};
-	var reconsume = function() {
+	var reconsume = () => {
 		i -= 1;
 		if (newline(code)) {
 			line -= 1;
@@ -142,14 +142,14 @@ function tokenize(str) {
 		locStart.column = column;
 		return true;
 	};
-	var eof = function(codepoint) {
+	var eof = codepoint => {
 		if(codepoint === undefined) codepoint = code;
 		return codepoint == -1;
 	};
-	var donothing = function() {};
-	var tokenizeerror = function() { console.log("Parse error at index " + i + ", processing codepoint 0x" + code.toString(16) + ".");return true; };
+	var donothing = () => {};
+	var tokenizeerror = () => { console.log("Parse error at index " + i + ", processing codepoint 0x" + code.toString(16) + ".");return true; };
 
-	var consumeAToken = function() {
+	var consumeAToken = () => {
 		consumeComments();
 		consume();
 		if(whitespace(code)) {
@@ -286,7 +286,7 @@ function tokenize(str) {
 		else return new DelimToken(code);
 	};
 
-	var consumeComments = function() {
+	var consumeComments = () => {
 		while(next(1) == 0x2f && next(2) == 0x2a) {
 			consume(2);
 			while(true) {
@@ -302,7 +302,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeANumericToken = function() {
+	var consumeANumericToken = () => {
 		var num = consumeANumber();
 		if(wouldStartAnIdentifier(next(1), next(2), next(3))) {
 			var token = new DimensionToken();
@@ -326,7 +326,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeAnIdentlikeToken = function() {
+	var consumeAnIdentlikeToken = () => {
 		var str = consumeAName();
 		if(str.toLowerCase() == "url" && next() == 0x28) {
 			consume();
@@ -346,7 +346,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeAStringToken = function(endingCodePoint) {
+	var consumeAStringToken = endingCodePoint => {
 		if(endingCodePoint === undefined) endingCodePoint = code;
 		var string = "";
 		while(consume()) {
@@ -370,7 +370,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeAURLToken = function() {
+	var consumeAURLToken = () => {
 		var token = new URLToken("");
 		while(whitespace(next())) consume();
 		if(eof(next())) return token;
@@ -404,7 +404,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeEscape = function() {
+	var consumeEscape = () => {
 		// Assume the the current character is the \
 		// and the next code point is not a newline.
 		consume();
@@ -420,7 +420,7 @@ function tokenize(str) {
 				}
 			}
 			if(whitespace(next())) consume();
-			var value = parseInt(digits.map(function(x){return String.fromCharCode(x);}).join(''), 16);
+			var value = parseInt(digits.map(x => String.fromCharCode(x)).join(''), 16);
 			if( value > maximumallowedcodepoint ) value = 0xfffd;
 			return value;
 		} else if(eof()) {
@@ -430,16 +430,14 @@ function tokenize(str) {
 		}
 	};
 
-	var areAValidEscape = function(c1, c2) {
+	var areAValidEscape = (c1, c2) => {
 		if(c1 != 0x5c) return false;
 		if(newline(c2)) return false;
 		return true;
 	};
-	var startsWithAValidEscape = function() {
-		return areAValidEscape(code, next());
-	};
+	var startsWithAValidEscape = () => areAValidEscape(code, next());
 
-	var wouldStartAnIdentifier = function(c1, c2, c3) {
+	var wouldStartAnIdentifier = (c1, c2, c3) => {
 		if(c1 == 0x2d) {
 			return namestartchar(c2) || c2 == 0x2d || areAValidEscape(c2, c3);
 		} else if(namestartchar(c1)) {
@@ -450,11 +448,9 @@ function tokenize(str) {
 			return false;
 		}
 	};
-	var startsWithAnIdentifier = function() {
-		return wouldStartAnIdentifier(code, next(1), next(2));
-	};
+	var startsWithAnIdentifier = () => wouldStartAnIdentifier(code, next(1), next(2));
 
-	var wouldStartANumber = function(c1, c2, c3) {
+	var wouldStartANumber = (c1, c2, c3) => {
 		if(c1 == 0x2b || c1 == 0x2d) {
 			if(digit(c2)) return true;
 			if(c2 == 0x2e && digit(c3)) return true;
@@ -468,11 +464,9 @@ function tokenize(str) {
 			return false;
 		}
 	};
-	var startsWithANumber = function() {
-		return wouldStartANumber(code, next(1), next(2));
-	};
+	var startsWithANumber = () => wouldStartANumber(code, next(1), next(2));
 
-	var consumeAName = function() {
+	var consumeAName = () => {
 		var result = "";
 		while(consume()) {
 			if(namechar(code)) {
@@ -486,7 +480,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeANumber = function() {
+	var consumeANumber = () => {
 		var repr = '';
 		var type = "integer";
 		if(next() == 0x2b || next() == 0x2d) {
@@ -536,12 +530,10 @@ function tokenize(str) {
 		return {type:type, value:value, repr:repr};
 	};
 
-	var convertAStringToANumber = function(string) {
-		// CSS's number rules are identical to JS, afaik.
-		return +string;
-	};
+	var convertAStringToANumber = string => // CSS's number rules are identical to JS, afaik.
+    +string;
 
-	var consumeTheRemnantsOfABadURL = function() {
+	var consumeTheRemnantsOfABadURL = () => {
 		while(consume()) {
 			if(code == 0x2d || eof()) {
 				return;
@@ -574,28 +566,28 @@ CSSParserToken.prototype.toCSSString = function() { return ''+this; }
 function BadStringToken() { return this; }
 BadStringToken.prototype = new CSSParserToken;
 BadStringToken.prototype.tokenType = "BADSTRING";
-BadStringToken.prototype.toCSSString = function() { return "'"; }
+BadStringToken.prototype.toCSSString = () => "'"
 
 function BadURLToken() { return this; }
 BadURLToken.prototype = new CSSParserToken;
 BadURLToken.prototype.tokenType = "BADURL";
-BadURLToken.prototype.toCSSString = function() { return "url("; }
+BadURLToken.prototype.toCSSString = () => "url("
 
 function WhitespaceToken() { return this; }
 WhitespaceToken.prototype = new CSSParserToken;
 WhitespaceToken.prototype.tokenType = "WHITESPACE";
-WhitespaceToken.prototype.toString = function() { return "WS"; }
-WhitespaceToken.prototype.toCSSString = function() { return " "; }
+WhitespaceToken.prototype.toString = () => "WS"
+WhitespaceToken.prototype.toCSSString = () => " "
 
 function CDOToken() { return this; }
 CDOToken.prototype = new CSSParserToken;
 CDOToken.prototype.tokenType = "CDO";
-CDOToken.prototype.toCSSString = function() { return "<!--"; }
+CDOToken.prototype.toCSSString = () => "<!--"
 
 function CDCToken() { return this; }
 CDCToken.prototype = new CSSParserToken;
 CDCToken.prototype.tokenType = "CDC";
-CDCToken.prototype.toCSSString = function() { return "-->"; }
+CDCToken.prototype.toCSSString = () => "-->"
 
 function ColonToken() { return this; }
 ColonToken.prototype = new CSSParserToken;
@@ -664,7 +656,7 @@ ColumnToken.prototype.tokenType = "||";
 function EOFToken() { return this; }
 EOFToken.prototype = new CSSParserToken;
 EOFToken.prototype.tokenType = "EOF";
-EOFToken.prototype.toCSSString = function() { return ""; }
+EOFToken.prototype.toCSSString = () => ""
 
 function DelimToken(code) {
 	this.value = stringFromCode(code);
@@ -1332,4 +1324,4 @@ cssSyntax.parseCSSValue = parseAListOfComponentValues;
 
 return cssSyntax;
 
-}());
+})());

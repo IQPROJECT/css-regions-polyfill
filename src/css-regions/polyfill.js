@@ -1,7 +1,7 @@
 //
 // this module holds the big-picture actions of the polyfill
 //
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	var domEvents = require('core:dom-events');
 	var cssSyntax = require('core:css-syntax');
@@ -115,9 +115,9 @@ module.exports = (function(window, document) { "use strict";
 			for(var imgs_index=imgs.length; imgs_index--; ) {
 				if(!imgs[imgs_index].complete && !imgs[imgs_index].hasAttribute('height')) {
 					return setTimeout(
-						function() {
+						() => {
 							this.layoutContentInNextRegionsWhenReady(region, regions, remainingContent, callback, startTime+32);
-						}.bind(this), 
+						}, 
 						16
 					);
 				}
@@ -181,7 +181,7 @@ module.exports = (function(window, document) { "use strict";
 				
 			} else {
 				
-				return callback.onprogress(function() {
+				return callback.onprogress(() => {
 					cssRegions.layoutContent(regions, remainingContent, callback);
 				});
 				
@@ -196,9 +196,9 @@ module.exports = (function(window, document) { "use strict";
 			for(var imgs_index=imgs.length; imgs_index--; ) {
 				if(!imgs[imgs_index].complete && !imgs[imgs_index].hasAttribute('height')) {
 					return setTimeout(
-						function() {
+						() => {
 							this.layoutContentInLastRegionWhenReady(region, regions, remainingContent, callback, startTime+32);
-						}.bind(this), 
+						}, 
 						32
 					);
 				}
@@ -279,7 +279,7 @@ module.exports = (function(window, document) { "use strict";
 			// helper for logging info
 			/*cssConsole.log("extracting overflow")
 			cssConsole.log(pos.bottom)*/
-			var debug = function() {
+			var debug = () => {
 				/*cssConsole.dir({
 					startContainer: r.startContainer,
 					startOffset: r.startOffset,
@@ -288,7 +288,7 @@ module.exports = (function(window, document) { "use strict";
 				});*/
 			}
 			
-			var fixNullRect = function() {
+			var fixNullRect = () => {
 				if(rect.bottom==0 && rect.top==0 && rect.left==0 && rect.right==0) {
 					
 					var scrollTop = -(document.documentElement.scrollTop || document.body.scrollTop);
@@ -760,13 +760,13 @@ module.exports = (function(window, document) { "use strict";
 				
 				// hum... there's an element missing here... {never happens anymore}
 				try { throw new Error() }
-				catch(ex) { setImmediate(function() { throw ex; }) }
+				catch(ex) { setImmediate(() => { throw ex; }) }
 				
 			} else if(typeof(topPaddingCut)==="number") {
 				
 				// hum... there's an element missing here... {never happens anymore}
 				try { throw new Error() }
-				catch(ex) { setImmediate(function() { throw ex; }) }
+				catch(ex) { setImmediate(() => { throw ex; }) }
 				
 			}
 			
@@ -813,7 +813,7 @@ module.exports = (function(window, document) { "use strict";
 						//
 						var flowInto = (
 							cssCascade.getSpecifiedStyle(element, "flow-into")
-							.filter(function(t) { return t instanceof cssSyntax.IdentifierToken })
+							.filter(t => t instanceof cssSyntax.IdentifierToken)
 						);
 						
 						var flowIntoName = flowInto[0] ? flowInto[0].toCSSString().toLowerCase() : "";
@@ -824,7 +824,7 @@ module.exports = (function(window, document) { "use strict";
 						
 						var flowFrom = (
 							cssCascade.getSpecifiedStyle(element, "flow-from")
-							.filter(function(t) { return t instanceof cssSyntax.IdentifierToken })
+							.filter(t => t instanceof cssSyntax.IdentifierToken)
 						);
 						
 						var flowFromName = flowFrom[0] ? flowFrom[0].toCSSString().toLowerCase() : ""; 
@@ -903,7 +903,7 @@ module.exports = (function(window, document) { "use strict";
 			// [3] make sure to update the region layout when all images loaded
 			//
 			window.addEventListener("load", 
-				function() { 
+				() => { 
 					var flows = document.getNamedFlows();
 					for(var i=0; i<flows.length; i++) {
 						flows[i].relayout();
@@ -916,7 +916,7 @@ module.exports = (function(window, document) { "use strict";
 			//
 			//
 			var lastWindowResize = 0;
-			var relayoutModifiedFlows = function() {
+			var relayoutModifiedFlows = () => {
 				
 				// specify the function did run
 				relayoutModifiedFlows.timeout = 0;
@@ -933,7 +933,7 @@ module.exports = (function(window, document) { "use strict";
 				}
 				
 			}
-			var hasOngoingLayouts = function() {
+			var hasOngoingLayouts = () => {
 				
 				var flows = document.getNamedFlows();
 				for(var i=0; i<flows.length; i++) {
@@ -946,7 +946,7 @@ module.exports = (function(window, document) { "use strict";
 				return false;
 				
 			}
-			var restartOngoingLayouts = function() {
+			var restartOngoingLayouts = () => {
 				
 				var flows = document.getNamedFlows();
 				for(var i=0; i<flows.length; i++) {
@@ -958,7 +958,7 @@ module.exports = (function(window, document) { "use strict";
 				
 			}
 			window.addEventListener("resize",
-				function() {
+				() => {
 					
 					// update the last layout flag
 					lastWindowResize = +new Date();
@@ -997,4 +997,4 @@ module.exports = (function(window, document) { "use strict";
 	enableObjectModel(window, document, cssRegions);
 	
 	return cssRegions;
-})(window, document);
+}))(window, document);

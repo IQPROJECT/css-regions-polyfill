@@ -1,4 +1,4 @@
-/*! CSS-REGIONS-POLYFILL - v3.0.0 - 2016-05-22 - https://github.com/FremyCompany/css-regions-polyfill - Copyright (c) 2016 François REMY; MIT-Licensed !*/
+/*! CSS-REGIONS-POLYFILL - v3.0.0 - 2018-03-21 - https://github.com/FremyCompany/css-regions-polyfill - Copyright (c) 2018 François REMY; MIT-Licensed !*/
 
 !(function() { 'use strict';
     var module = { exports:{} };
@@ -6,7 +6,7 @@
 
 ////////////////////////////////////////
 
-!(function(window, document) { "use strict";
+!(((window, document) => { "use strict";
 
 	//
 	// some code for console polyfilling
@@ -20,7 +20,7 @@
 			
 			dir: function(x) { try { 
 				
-				var elm = function(e) {
+				var elm = e => {
 					if(e.innerHTML) {
 						return {
 							tagName: e.tagName,
@@ -36,9 +36,9 @@
 					}
 				};
 				
-				var jsonify = function(o) {
+				var jsonify = o => {
 					var seen=[];
-					var jso=JSON.stringify(o, function(k,v){
+					var jso=JSON.stringify(o, (k, v) => {
 						if (typeof v =='object') {
 							if ( !seen.indexOf(v) ) { return '__cycle__'; }
 							if ( v instanceof window.Node) { return elm(v); }
@@ -77,12 +77,12 @@
 		error: function(x) { console.error(x); }
 	}
 
-})(window, document);
+}))(window, document);
 require.define('src/core/polyfill-dom-console.js');
 
 ////////////////////////////////////////
 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	require('src/core/polyfill-dom-console.js');
 
@@ -226,7 +226,7 @@ module.exports = (function(window, document) { "use strict";
 					
 					var ee = Object.create(Object.getPrototypeOf(e));
 					ee = setUpTarget(ee,v);
-					for(key in e) {
+					for(var key in e) {
 						if(key != "target") setUpPropertyForwarding(e,ee,key);
 					}
 					return ee;
@@ -259,7 +259,7 @@ module.exports = (function(window, document) { "use strict";
 			try { 
 				ls[i](event);
 			} catch(ex) {
-				setImmediate(function() { throw ex; });
+				setImmediate(() => { throw ex; });
 			}
 		}
 		
@@ -268,7 +268,8 @@ module.exports = (function(window, document) { "use strict";
 	
 	return domEvents;
 	
-})(window, document);
+}))(window, document);
+
 require.define('src/core/dom-events.js');
 
 ////////////////////////////////////////
@@ -277,7 +278,7 @@ require.define('src/core/dom-events.js');
 // note: this file is based on Tab Atkins's CSS Parser
 // please include him (@tabatkins) if you open any issue for this file
 // 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 // 
 // exports
@@ -299,10 +300,10 @@ function TokenList() {
 }
 function TokenListToCSSString(sep) {
 	if(sep) {
-		return this.map(function(o) { return o.toCSSString(); }).join(sep);
+		return this.map(o => o.toCSSString()).join(sep);
 	} else {
 		return this.asCSSString || (this.asCSSString = (
-			this.map(function(o) { return o.toCSSString(); }).join("/**/")
+			this.map(o => o.toCSSString()).join("/**/")
 				.replace(/( +\/\*\*\/ *| * | *\/\*\*\/ +)/g," ")
 				.replace(/( +\/\*\*\/ *| * | *\/\*\*\/ +)/g," ")
 				.replace(/(\!|\:|\;|\@|\.|\,|\*|\=|\&|\\|\/|\<|\>|\[|\{|\(|\]|\}|\)|\|)\/\*\*\//g,"$1")
@@ -377,25 +378,25 @@ function tokenize(str) {
 	var column = 0;
 	// The only use of lastLineLength is in reconsume().
 	var lastLineLength = 0;
-	var incrLineno = function() {
+	var incrLineno = () => {
 		line += 1;
 		lastLineLength = column;
 		column = 0;
 	};
 	var locStart = {line:line, column:column};
 
-	var codepoint = function(i) {
+	var codepoint = i => {
 		if(i >= str.length) {
 			return -1;
 		}
 		return str[i];
 	}
-	var next = function(num) {
+	var next = num => {
 		if(num === undefined) { num = 1; }
 		if(num > 3) { throw "Spec Error: no more than three codepoints of lookahead."; }
 		return codepoint(i+num);
 	};
-	var consume = function(num) {
+	var consume = num => {
 		if(num === undefined)
 			num = 1;
 		i += num;
@@ -405,7 +406,7 @@ function tokenize(str) {
 		//console.log('Consume '+i+' '+String.fromCharCode(code) + ' 0x' + code.toString(16));
 		return true;
 	};
-	var reconsume = function() {
+	var reconsume = () => {
 		i -= 1;
 		if (newline(code)) {
 			line -= 1;
@@ -417,14 +418,14 @@ function tokenize(str) {
 		locStart.column = column;
 		return true;
 	};
-	var eof = function(codepoint) {
+	var eof = codepoint => {
 		if(codepoint === undefined) codepoint = code;
 		return codepoint == -1;
 	};
-	var donothing = function() {};
-	var tokenizeerror = function() { console.log("Parse error at index " + i + ", processing codepoint 0x" + code.toString(16) + ".");return true; };
+	var donothing = () => {};
+	var tokenizeerror = () => { console.log("Parse error at index " + i + ", processing codepoint 0x" + code.toString(16) + ".");return true; };
 
-	var consumeAToken = function() {
+	var consumeAToken = () => {
 		consumeComments();
 		consume();
 		if(whitespace(code)) {
@@ -561,7 +562,7 @@ function tokenize(str) {
 		else return new DelimToken(code);
 	};
 
-	var consumeComments = function() {
+	var consumeComments = () => {
 		while(next(1) == 0x2f && next(2) == 0x2a) {
 			consume(2);
 			while(true) {
@@ -577,7 +578,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeANumericToken = function() {
+	var consumeANumericToken = () => {
 		var num = consumeANumber();
 		if(wouldStartAnIdentifier(next(1), next(2), next(3))) {
 			var token = new DimensionToken();
@@ -601,7 +602,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeAnIdentlikeToken = function() {
+	var consumeAnIdentlikeToken = () => {
 		var str = consumeAName();
 		if(str.toLowerCase() == "url" && next() == 0x28) {
 			consume();
@@ -621,7 +622,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeAStringToken = function(endingCodePoint) {
+	var consumeAStringToken = endingCodePoint => {
 		if(endingCodePoint === undefined) endingCodePoint = code;
 		var string = "";
 		while(consume()) {
@@ -645,7 +646,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeAURLToken = function() {
+	var consumeAURLToken = () => {
 		var token = new URLToken("");
 		while(whitespace(next())) consume();
 		if(eof(next())) return token;
@@ -679,7 +680,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeEscape = function() {
+	var consumeEscape = () => {
 		// Assume the the current character is the \
 		// and the next code point is not a newline.
 		consume();
@@ -695,7 +696,7 @@ function tokenize(str) {
 				}
 			}
 			if(whitespace(next())) consume();
-			var value = parseInt(digits.map(function(x){return String.fromCharCode(x);}).join(''), 16);
+			var value = parseInt(digits.map(x => String.fromCharCode(x)).join(''), 16);
 			if( value > maximumallowedcodepoint ) value = 0xfffd;
 			return value;
 		} else if(eof()) {
@@ -705,16 +706,14 @@ function tokenize(str) {
 		}
 	};
 
-	var areAValidEscape = function(c1, c2) {
+	var areAValidEscape = (c1, c2) => {
 		if(c1 != 0x5c) return false;
 		if(newline(c2)) return false;
 		return true;
 	};
-	var startsWithAValidEscape = function() {
-		return areAValidEscape(code, next());
-	};
+	var startsWithAValidEscape = () => areAValidEscape(code, next());
 
-	var wouldStartAnIdentifier = function(c1, c2, c3) {
+	var wouldStartAnIdentifier = (c1, c2, c3) => {
 		if(c1 == 0x2d) {
 			return namestartchar(c2) || c2 == 0x2d || areAValidEscape(c2, c3);
 		} else if(namestartchar(c1)) {
@@ -725,11 +724,9 @@ function tokenize(str) {
 			return false;
 		}
 	};
-	var startsWithAnIdentifier = function() {
-		return wouldStartAnIdentifier(code, next(1), next(2));
-	};
+	var startsWithAnIdentifier = () => wouldStartAnIdentifier(code, next(1), next(2));
 
-	var wouldStartANumber = function(c1, c2, c3) {
+	var wouldStartANumber = (c1, c2, c3) => {
 		if(c1 == 0x2b || c1 == 0x2d) {
 			if(digit(c2)) return true;
 			if(c2 == 0x2e && digit(c3)) return true;
@@ -743,11 +740,9 @@ function tokenize(str) {
 			return false;
 		}
 	};
-	var startsWithANumber = function() {
-		return wouldStartANumber(code, next(1), next(2));
-	};
+	var startsWithANumber = () => wouldStartANumber(code, next(1), next(2));
 
-	var consumeAName = function() {
+	var consumeAName = () => {
 		var result = "";
 		while(consume()) {
 			if(namechar(code)) {
@@ -761,7 +756,7 @@ function tokenize(str) {
 		}
 	};
 
-	var consumeANumber = function() {
+	var consumeANumber = () => {
 		var repr = '';
 		var type = "integer";
 		if(next() == 0x2b || next() == 0x2d) {
@@ -811,12 +806,10 @@ function tokenize(str) {
 		return {type:type, value:value, repr:repr};
 	};
 
-	var convertAStringToANumber = function(string) {
-		// CSS's number rules are identical to JS, afaik.
-		return +string;
-	};
+	var convertAStringToANumber = string => // CSS's number rules are identical to JS, afaik.
+    +string;
 
-	var consumeTheRemnantsOfABadURL = function() {
+	var consumeTheRemnantsOfABadURL = () => {
 		while(consume()) {
 			if(code == 0x2d || eof()) {
 				return;
@@ -849,28 +842,28 @@ CSSParserToken.prototype.toCSSString = function() { return ''+this; }
 function BadStringToken() { return this; }
 BadStringToken.prototype = new CSSParserToken;
 BadStringToken.prototype.tokenType = "BADSTRING";
-BadStringToken.prototype.toCSSString = function() { return "'"; }
+BadStringToken.prototype.toCSSString = () => "'"
 
 function BadURLToken() { return this; }
 BadURLToken.prototype = new CSSParserToken;
 BadURLToken.prototype.tokenType = "BADURL";
-BadURLToken.prototype.toCSSString = function() { return "url("; }
+BadURLToken.prototype.toCSSString = () => "url("
 
 function WhitespaceToken() { return this; }
 WhitespaceToken.prototype = new CSSParserToken;
 WhitespaceToken.prototype.tokenType = "WHITESPACE";
-WhitespaceToken.prototype.toString = function() { return "WS"; }
-WhitespaceToken.prototype.toCSSString = function() { return " "; }
+WhitespaceToken.prototype.toString = () => "WS"
+WhitespaceToken.prototype.toCSSString = () => " "
 
 function CDOToken() { return this; }
 CDOToken.prototype = new CSSParserToken;
 CDOToken.prototype.tokenType = "CDO";
-CDOToken.prototype.toCSSString = function() { return "<!--"; }
+CDOToken.prototype.toCSSString = () => "<!--"
 
 function CDCToken() { return this; }
 CDCToken.prototype = new CSSParserToken;
 CDCToken.prototype.tokenType = "CDC";
-CDCToken.prototype.toCSSString = function() { return "-->"; }
+CDCToken.prototype.toCSSString = () => "-->"
 
 function ColonToken() { return this; }
 ColonToken.prototype = new CSSParserToken;
@@ -939,7 +932,7 @@ ColumnToken.prototype.tokenType = "||";
 function EOFToken() { return this; }
 EOFToken.prototype = new CSSParserToken;
 EOFToken.prototype.tokenType = "EOF";
-EOFToken.prototype.toCSSString = function() { return ""; }
+EOFToken.prototype.toCSSString = () => ""
 
 function DelimToken(code) {
 	this.value = stringFromCode(code);
@@ -1607,13 +1600,13 @@ cssSyntax.parseCSSValue = parseAListOfComponentValues;
 
 return cssSyntax;
 
-}());
+})());
 
 require.define('src/core/css-syntax.js');
 
 ////////////////////////////////////////
 
-void function() {
+void (() => {
 	
 	// request animation frame
     var vendors = ['webkit', 'moz', 'ms', 'o'];
@@ -1625,7 +1618,7 @@ void function() {
     if (!window.requestAnimationFrame || !window.cancelAnimationFrame) {
 		
 		// tick every 16ms
-        var listener_index = 0; var listeners = []; var tmp = []; var tick = function() {
+        var listener_index = 0; var listeners = []; var tmp = []; var tick = () => {
 			var now = +(new Date()); var callbacks = listeners; listeners = tmp;
 			for(var i = 0; i<callbacks.length; i++) { callbacks[i](now); }
 			listener_index += callbacks.length; callbacks.length = 0; tmp = callbacks;
@@ -1633,14 +1626,12 @@ void function() {
 		}; tick();
 		
 		// add a listener
-        window.requestAnimationFrame = function(callback) {
-            return listener_index + listeners.push(callback);
-        };
+        window.requestAnimationFrame = callback => listener_index + listeners.push(callback);
 		
 		// remove a listener
-        window.cancelAnimationFrame = function(index) {
+        window.cancelAnimationFrame = index => {
 			index -= listener_index; if(index >= 0 && index < listeners.length) {
-				listeners[index] = function() {};
+				listeners[index] = () => {};
 			}
 		};
 		
@@ -1648,11 +1639,11 @@ void function() {
 	
 	// setImmediate
 	if(!window.setImmediate) {
-		window.setImmediate = function(f) { return setTimeout(f, 0) };
+		window.setImmediate = f => setTimeout(f, 0);
 		window.cancelImmediate = clearTimeout;
 	}
 	
-}();
+})();
 
 require.define('src/core/polyfill-dom-requestAnimationFrame.js');
 
@@ -1674,7 +1665,7 @@ require.define('src/core/polyfill-dom-requestAnimationFrame.js');
 // TODO: improve event streams
 // - look for a few optimizations ideas in gecko/webkit
 // - use arrays in CompositeEventStream to avoid nested debouncings
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	///
 	/// event stream implementation
@@ -1684,7 +1675,7 @@ module.exports = (function(window, document) { "use strict";
 		var self=this;
 		
 		// validate arguments
-		if(!disconnect) disconnect=function(){};
+		if(!disconnect) disconnect=() => {};
 		if(!reconnect) reconnect=connect;
 		
 		// high-level states
@@ -1694,11 +1685,11 @@ module.exports = (function(window, document) { "use strict";
 		
 		// global variables
 		var callback=null;
-		var yieldEvent = function() {
+		var yieldEvent = () => {
 			
 			// call the callback function, and pend disposal
 			shouldDisconnect=true;
-			try { callback && callback(self); } catch(ex) { setImmediate(function() { throw ex; }); }
+			try { callback && callback(self); } catch(ex) { setImmediate(() => { throw ex; }); }
 			
 			// if no action was taken, dispose
 			if(shouldDisconnect) { dispose(); }
@@ -1706,7 +1697,7 @@ module.exports = (function(window, document) { "use strict";
 		}
 		
 		// export the interface
-		var schedule = this.schedule = function(newCallback) {
+		var schedule = this.schedule = newCallback => {
 		
 			// do not allow to schedule on disconnected event streams
 			if(isDisconnected) { throw new Error("Cannot schedule on a disconnected event stream"); }
@@ -1726,7 +1717,7 @@ module.exports = (function(window, document) { "use strict";
 			}
 		}
 		
-		var dispose = this.dispose = function() {
+		var dispose = this.dispose = () => {
 		
 			// do not allow to dispose non-connected streams
 			if(isConnected) {
@@ -1785,7 +1776,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// handle the synchronous nature of mutation events
 		var yieldEvent=null;
-		var yieldEventDelayed = function() {
+		var yieldEventDelayed = () => {
 			if(scheduled) return;
 			window.removeEventListener(pointermove, yieldEventDelayed, true);
 			scheduled = requestAnimationFrame(yieldEvent);
@@ -1823,7 +1814,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// handle the synchronous nature of mutation events
 		var yieldEvent=null;
-		var yieldEventDelayed = function() {
+		var yieldEventDelayed = () => {
 			if(scheduled) return;
 			window.removeEventListener(pointerup, yieldEventDelayed, true);
 			window.removeEventListener(pointerdown, yieldEventDelayed, true);
@@ -1904,7 +1895,7 @@ module.exports = (function(window, document) { "use strict";
 			
 			// handle the synchronous nature of mutation events
 			var yieldEvent=null;
-			var yieldEventDelayed = function() {
+			var yieldEventDelayed = () => {
 				if(scheduled || !yieldEventDelayed) return;
 				document.removeEventListener("DOMContentLoaded", yieldEventDelayed, false);
 				document.removeEventListener("DOMContentLoaded", yieldEventDelayed, false);
@@ -1944,7 +1935,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// handle the filtering nature of focus events
 		var yieldEvent=null; var previousActiveElement=null; var previousHasFocus=false; var rid=0;
-		var yieldEventDelayed = function() {
+		var yieldEventDelayed = () => {
 			
 			// if the focus didn't change
 			if(previousActiveElement==document.activeElement && previousHasFocus==document.hasFocus()) {
@@ -1989,7 +1980,7 @@ module.exports = (function(window, document) { "use strict";
 		
 		// fields
 		var yieldEvent=null; var s1=false, s2=false;
-		var yieldEventWrapper=function(s) { 
+		var yieldEventWrapper=s => { 
 			if(s==stream1) s1=true;
 			if(s==stream2) s2=true;
 			if(s1&&s2) return;
@@ -2028,7 +2019,7 @@ module.exports = (function(window, document) { "use strict";
 		CompositeEventStream:       CompositeEventStream
 	};
 
-})(window, document);
+}))(window, document);
 require.define('src/core/dom-experimental-event-streams.js');
 
 ////////////////////////////////////////
@@ -2046,7 +2037,7 @@ require.define('src/core/dom-experimental-event-streams.js');
 ////                                                         ////
 /////////////////////////////////////////////////////////////////
 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	// import dependencies
 	var eventStreams = require('src/core/dom-experimental-event-streams.js'),
@@ -2082,7 +2073,7 @@ module.exports = (function(window, document) { "use strict";
 			currentElms = newElms.slice(0); temps=null;
 			
 			// first let's clear all elements that have been removed from the document
-			oldElms = oldElms.filter(function(e) {
+			oldElms = oldElms.filter(e => {
 				
 				// check whether the current element is still there
 				var isStillInDocument = (
@@ -2098,7 +2089,7 @@ module.exports = (function(window, document) { "use strict";
 				} else {
 					
 					// DELETE: raise onremoved, pop old elements
-					try { handler.onremoved && handler.onremoved(e); } catch(ex) { setImmediate(function() {throw ex})}
+					try { handler.onremoved && handler.onremoved(e); } catch(ex) { setImmediate(() => {throw ex})}
 					return false;
 					
 				}
@@ -2119,13 +2110,13 @@ module.exports = (function(window, document) { "use strict";
 				} else if (el2 && /*el1 is after el2*/(!el1||(el2.compareDocumentPosition(el1) & (1|2|8|32))===0)) {
 					
 					// INSERT: raise onadded, pop new elements
-					try { handler.onadded && handler.onadded(el2); } catch(ex) { setImmediate(function() {throw ex})}
+					try { handler.onadded && handler.onadded(el2); } catch(ex) { setImmediate(() => {throw ex})}
 					el2 = newElms.pop();
 					
 				} else {
 				
 					// DELETE: raise onremoved, pop old elements
-					try { handler.onremoved && handler.onremoved(el1); } catch(ex) { setImmediate(function() {throw ex})}
+					try { handler.onremoved && handler.onremoved(el1); } catch(ex) { setImmediate(() => {throw ex})}
 					el1 = oldElms.pop();
 					
 				}
@@ -2245,14 +2236,14 @@ module.exports = (function(window, document) { "use strict";
 	
 	return querySelectorLive;
 	
-})(window, document);
+}))(window, document);
 require.define('src/core/dom-query-selector-live.js');
 
 ////////////////////////////////////////
 
 // TODO: comment about the 'no_auto_stylesheet_detection' flag?
 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 	
 	// import dependencies
 	require('src/core/polyfill-dom-console.js');
@@ -2316,7 +2307,7 @@ module.exports = (function(window, document) { "use strict";
 				
 			}
 			
-			if(numberOfIDs>255) numberOfIds=255;
+			if(numberOfIDs>255) numberOfIDs=255;
 			if(numberOfClasses>255) numberOfClasses=255;
 			if(numberOfTags>255) numberOfTags=255;
 			
@@ -2341,7 +2332,7 @@ module.exports = (function(window, document) { "use strict";
 			var results = [];
 			
 			// walk the whole stylesheet...
-			var visit = function(rules) {
+			var visit = rules => {
 				try {
 					for(var r = rules.length; r--; ) {
 						var rule = rules[r]; 
@@ -2389,7 +2380,7 @@ module.exports = (function(window, document) { "use strict";
 									else if(element.mozMatchesSelector) isMatching=element.mozMatchesSelector(selector)
 									else if(element.webkitMatchesSelector) isMatching=element.webkitMatchesSelector(selector)
 									else { throw new Error("no element.matches?") }
-								} catch(ex) { debugger; setImmediate(function() { throw ex; }) }
+								} catch(ex) { debugger; setImmediate(() => { throw ex; }) }
 								
 								// if yes, add it to the list of matched selectors
 								if(isMatching) { results.push(subrules[sr]); }
@@ -2405,7 +2396,7 @@ module.exports = (function(window, document) { "use strict";
 						
 					}
 				} catch (ex) {
-					setImmediate(function() { throw ex; });
+					setImmediate(() => { throw ex; });
 				}
 			}
 			
@@ -2579,7 +2570,7 @@ module.exports = (function(window, document) { "use strict";
 					: cssCascade.findAllMatchingRules(element)
 				);
 				
-				var visit = function(rules) {
+				var visit = rules => {
 					
 					for(var i=rules.length; i--; ) {
 						
@@ -2843,14 +2834,14 @@ module.exports = (function(window, document) { "use strict";
 				var rules = atrule.toStylesheet().value;
 				cssCascade.updateMedia(rules, !media.matches, false);
 				media.addListener(
-					function(newMedia) { cssCascade.updateMedia(rules, !newMedia.matches, true); }
+					newMedia => { cssCascade.updateMedia(rules, !newMedia.matches, true); }
 				);
 				
 				// it seems I like taking risks...
 				cssCascade.startMonitoringStylesheet(rules);
 				
 			} catch(ex) {
-				setImmediate(function() { throw ex; })
+				setImmediate(() => { throw ex; })
 			}
 		},
 		
@@ -2949,9 +2940,7 @@ module.exports = (function(window, document) { "use strict";
 		toCamelCase: function toCamelCase(variable) { 
 			return variable.replace(
 				/-([a-z])/g, 
-				function(str,letter) { 
-					return letter.toUpperCase();
-				}
+				(str, letter) => letter.toUpperCase()
 			);
 		},
 		
@@ -2966,7 +2955,7 @@ module.exports = (function(window, document) { "use strict";
 					
 					// check we know which element we work on
 					try { if(!this.parentElement) throw new Error("Please use the anHTMLElement.myStyle property to get polyfilled properties") }
-					catch(ex) { setImmediate(function() { throw ex; }); return ''; }
+					catch(ex) { setImmediate(() => { throw ex; }); return ''; }
 					
 					try { 
 						// non-computed style: return the local style of the element
@@ -2987,7 +2976,7 @@ module.exports = (function(window, document) { "use strict";
 
 					// check we know which element we work on
 					try { if(!this.parentElement) throw new Error("Please use the anHTMLElement.myStyle property to set polyfilled properties") }
-					catch(ex) { setImmediate(function() { throw ex; }); return; }
+					catch(ex) { setImmediate(() => { throw ex; }); return; }
 					
 					// modify the local style of the element
 					if(this.parentElement.getAttribute('data-style-'+cssPropertyName) != v) {
@@ -3043,7 +3032,7 @@ module.exports = (function(window, document) { "use strict";
 	if(!("no_auto_stylesheet_detection" in window)) {
 		
 		cssCascade.loadAllStyleSheets();
-		document.addEventListener("DOMContentLoaded", function() {
+		document.addEventListener("DOMContentLoaded", () => {
 			cssCascade.loadAllStyleSheets();
 			querySelectorLive(
 				cssCascade.selectorForStylesheets,
@@ -3060,12 +3049,13 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssCascade;
 
-})(window, document);
+}))(window, document);
+
 require.define('src/core/css-cascade.js');
 
 ////////////////////////////////////////
 
-module.exports = (function(window, document) { "use strict"; 
+module.exports = (((window, document) => { "use strict"; 
 
 	var cssSyntax = require('src/core/css-syntax.js');
 	var cssCascade = require('src/core/css-cascade.js');
@@ -3108,10 +3098,9 @@ module.exports = (function(window, document) { "use strict";
 			if(typeof(isReplaced)=="undefined") isReplaced = this.isReplacedElement(element);
 			
 			return (
-				elementDisplay === "inline-block"
+				(elementDisplay === "inline-block"
 				|| elementDisplay === "inline-table"
-				|| elementDisplay === "inline-flex"
-				|| elementDisplay === "inline-grid"
+				|| elementDisplay === "inline-flex" || elementDisplay === "inline-grid")
 				// TODO: more
 			) && (
 				elementPosition === "static"
@@ -3494,7 +3483,7 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssBreak;
 	
-})(window, document);
+}))(window, document);
 require.define('src/core/css-break.js');
 
 ////////////////////////////////////////
@@ -3524,7 +3513,7 @@ if(!document.caretRangeFromPoint) {
         
         var TextRangeUtils = {
             convertToDOMRange: function (textRange, document) {
-                var adoptBoundary = function(domRange, textRangeInner, bStart) {
+                var adoptBoundary = (domRange, textRangeInner, bStart) => {
                     // iterate backwards through parent element to find anchor location
                     var cursorNode = document.createElement('a'), cursor = textRangeInner.duplicate();
                     cursor.collapse(bStart);
@@ -3557,7 +3546,7 @@ if(!document.caretRangeFromPoint) {
             },
 
             convertFromDOMRange: function (domRange) {
-                var adoptEndPoint = function(textRange, domRangeInner, bStart) {
+                var adoptEndPoint = (textRange, domRangeInner, bStart) => {
                     // find anchor node and offset
                     var container = domRangeInner[bStart ? 'startContainer' : 'endContainer'];
                     var offset = domRangeInner[bStart ? 'startOffset' : 'endOffset'], textOffset = 0;
@@ -4019,7 +4008,7 @@ require.define('src/css-regions/lib/range-extensions.js');
 //
 // this module holds the big-picture actions of the polyfill
 //
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 	
 	var domEvents = require('src/core/dom-events.js');
 	var cssSyntax = require('src/core/css-syntax.js');
@@ -4054,7 +4043,7 @@ module.exports = (function(window, document) { "use strict";
 		// prepares the element to become a css region
 		//
 		markNodesAsRegion: function(nodes,fast) {
-			nodes.forEach(function(node) {
+			nodes.forEach(node => {
 				node.regionOverset = 'empty';
 				node.setAttribute('data-css-region',node.cssRegionsLastFlowFromName);
 				cssRegionsHelpers.hideTextNodesFromFragmentSource([node]);
@@ -4066,14 +4055,14 @@ module.exports = (function(window, document) { "use strict";
 		// prepares the element to return to its normal css life
 		//
 		unmarkNodesAsRegion: function(nodes,fast) {
-			nodes.forEach(function(node) {
+			nodes.forEach(node => {
 				
 				// restore regionOverset to its natural value
 				node.regionOverset = 'fit';
 				
 				// remove the current <cssregion> tag
 				try { node.cssRegionsWrapper && node.removeChild(node.cssRegionsWrapper); } 
-				catch(ex) { setImmediate(function() { throw ex })}; 
+				catch(ex) { setImmediate(() => { throw ex })}; 
 				node.cssRegionsWrapper = undefined;
 				delete node.cssRegionsWrapper;
 				
@@ -4515,7 +4504,7 @@ module.exports = (function(window, document) { "use strict";
 						}
 						
 						// now, let's work on ::after and ::before
-						var importPseudo = function(node1,node2,pseudo) {
+						var importPseudo = (node1, node2, pseudo) => {
 							
 							//
 							// we'll need to use getSpecifiedStyle here as the pseudo thing is slow
@@ -4634,7 +4623,7 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssRegionsHelpers;
 	
-})(window, document);
+}))(window, document);
 require.define('src/css-regions/lib/helpers.js');
 
 ////////////////////////////////////////
@@ -4681,13 +4670,13 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		};
 		
 		// this function is used to work with dom event streams
-		var This=this; This.update = function(stream) {
+		var This=this; This.update = stream => {
 			stream.schedule(This.update); This.relayout();
 		};
 		
 		// register to style changes already
 		This.lastStylesheetAdded = 0;
-		cssCascade.addEventListener('stylesheetadded', function() {
+		cssCascade.addEventListener('stylesheetadded', () => {
 			if(This.lastStylesheetAdded - Date() > 100) {
 				This.lastStylesheetAdded = +Date();
 				This.relayout();
@@ -4744,9 +4733,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		var treeWalker = document.createTreeWalker(
 			document.documentElement,
 			NodeFilter.SHOW_ELEMENT,
-			function(node) { 
-				return (currentNodeIndex = content.indexOf(node)) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; 
-			},
+			node => (currentNodeIndex = content.indexOf(node)) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP,
 			false
 		); 
 		
@@ -4775,9 +4762,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		var treeWalker = document.createTreeWalker(
 			document.documentElement,
 			NodeFilter.SHOW_ELEMENT,
-			function(node) { 
-				return regions.indexOf(node) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; 
-			},
+			node => regions.indexOf(node) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
 			false
 		);
 		
@@ -4886,7 +4871,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		if(This.relayoutScheduled) { return; }
 		if(This.relayoutInProgress) { This.restartLayout=true; return; }
 		This.relayoutScheduled = true;
-		requestAnimationFrame(function() { This._relayout() });
+		requestAnimationFrame(() => { This._relayout() });
 		
 	}
 
@@ -4925,8 +4910,8 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 			//
 			
 			// detect elements being removed of the document
-			This.regions = This.regions.filter(function(e) { return document.documentElement.contains(e); })
-			This.content = This.content.filter(function(e) { return document.documentElement.contains(e); })
+			This.regions = This.regions.filter(e => document.documentElement.contains(e))
+			This.content = This.content.filter(e => document.documentElement.contains(e))
 			
 			// cleanup previous layout
 			cssRegionsHelpers.unmarkNodesAsRegion(This.lastRegions); This.lastRegions = This.regions.slice(0);
@@ -5031,7 +5016,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 					} else {
 						// the other browsers don't get this as acurately
 						// but that shouldn't be that of an issue for 99% of the cases
-						setImmediate(function() {
+						setImmediate(() => {
 							This.addEventListenersTo(This.content);
 						});
 					}
@@ -5045,8 +5030,8 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 						
 						// before doing anything, let's check our stuff is consistent
 						var isBuggy = false;
-						isBuggy = isBuggy || This.regions.some(function(e) { return !document.documentElement.contains(e); })
-						isBuggy = isBuggy || This.content.some(function(e) { return !document.documentElement.contains(e); })
+						isBuggy = isBuggy || This.regions.some(e => !document.documentElement.contains(e))
+						isBuggy = isBuggy || This.content.some(e => !document.documentElement.contains(e))
 						
 						if(isBuggy) {
 							
@@ -5057,7 +5042,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 						} else {
 							
 							// if it was okay, let's fire some event
-							This.lastEventRAF = requestAnimationFrame(function() {
+							This.lastEventRAF = requestAnimationFrame(() => {
 							
 								// TODO: only fire when necessary but...
 								This.dispatchEvent('regionfragmentchange');
@@ -5090,12 +5075,12 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 			
 			// sometimes IE fails for no valid reason 
 			// (other than the page is still loading)
-			setImmediate(function() { throw ex; });
+			setImmediate(() => { throw ex; });
 			
 			// but we cannot accept to fail, so we need to try again
 			// until we finish a complete layout pass...
 			This.failedLayoutCount++;
-			if(This.failedLayoutCount<7) {requestAnimationFrame(function() { This._relayout() });}
+			if(This.failedLayoutCount<7) {requestAnimationFrame(() => { This._relayout() });}
 			else {This.failedLayoutCount=0; This.relayoutScheduled=false; This.relayoutInProgress=false; This.restartLayout=false; }
 			
 		}
@@ -5120,7 +5105,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 	cssRegions.Flow.prototype.addEventListenersTo = function(nodes) {
 		var This=this; if(nodes instanceof Element) { nodes=[nodes] }
 		
-		nodes.forEach(function(element) {
+		nodes.forEach(element => {
 			if(!element.cssRegionsEventStream) {
 				element.cssRegionsEventStream = new ES.DOMUpdateEventStream({target: element});
 				element.cssRegionsEventStream.schedule(This.update);
@@ -5132,7 +5117,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 	cssRegions.Flow.prototype.removeEventListenersOf = function(nodes) {
 		var This=this; if(nodes instanceof Element) { nodes=[nodes] }
 		
-		nodes.forEach(function(element) {
+		nodes.forEach(element => {
 			if(element.cssRegionsEventStream) {
 				element.cssRegionsEventStream.dispose();
 				delete element.cssRegionsEventStream;
@@ -5183,15 +5168,13 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		
 	}
 
-	cssRegions.NamedFlowCollection.prototype.namedItem = function(k) {
-		return cssRegions.flows[k] || (cssRegions.flows[k]=new cssRegions.Flow(k));
-	}
+	cssRegions.NamedFlowCollection.prototype.namedItem = k => cssRegions.flows[k] || (cssRegions.flows[k]=new cssRegions.Flow(k))
 
 
 	//
 	// this helper creates the required methods on top of the DOM {ie: public exports}
 	//
-	cssRegions.enablePolyfillObjectModel = function() {
+	cssRegions.enablePolyfillObjectModel = () => {
 		
 		//
 		// DOCUMENT INTERFACE
@@ -5200,7 +5183,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		//
 		// returns a static list of active named flows
 		//
-		document.getNamedFlows = function() {
+		document.getNamedFlows = () => {
 				
 			var c = new cssRegions.NamedFlowCollection(); var flows = cssRegions.flows;
 			for(var flowName in cssRegions.flows) {
@@ -5222,7 +5205,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		//
 		// returns a live object for any named flow
 		//
-		document.getNamedFlow = function(flowName) {
+		document.getNamedFlow = flowName => {
 				
 			var flows = cssRegions.flows;
 			return (flows[flowName] || (flows[flowName]=new cssRegions.NamedFlow(flowName)));
@@ -5286,7 +5269,7 @@ require.define('src/css-regions/lib/objectmodel.js');
 //
 // this module holds the big-picture actions of the polyfill
 //
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	var domEvents = require('src/core/dom-events.js');
 	var cssSyntax = require('src/core/css-syntax.js');
@@ -5400,9 +5383,9 @@ module.exports = (function(window, document) { "use strict";
 			for(var imgs_index=imgs.length; imgs_index--; ) {
 				if(!imgs[imgs_index].complete && !imgs[imgs_index].hasAttribute('height')) {
 					return setTimeout(
-						function() {
+						() => {
 							this.layoutContentInNextRegionsWhenReady(region, regions, remainingContent, callback, startTime+32);
-						}.bind(this), 
+						}, 
 						16
 					);
 				}
@@ -5466,7 +5449,7 @@ module.exports = (function(window, document) { "use strict";
 				
 			} else {
 				
-				return callback.onprogress(function() {
+				return callback.onprogress(() => {
 					cssRegions.layoutContent(regions, remainingContent, callback);
 				});
 				
@@ -5481,9 +5464,9 @@ module.exports = (function(window, document) { "use strict";
 			for(var imgs_index=imgs.length; imgs_index--; ) {
 				if(!imgs[imgs_index].complete && !imgs[imgs_index].hasAttribute('height')) {
 					return setTimeout(
-						function() {
+						() => {
 							this.layoutContentInLastRegionWhenReady(region, regions, remainingContent, callback, startTime+32);
-						}.bind(this), 
+						}, 
 						32
 					);
 				}
@@ -5564,7 +5547,7 @@ module.exports = (function(window, document) { "use strict";
 			// helper for logging info
 			/*cssConsole.log("extracting overflow")
 			cssConsole.log(pos.bottom)*/
-			var debug = function() {
+			var debug = () => {
 				/*cssConsole.dir({
 					startContainer: r.startContainer,
 					startOffset: r.startOffset,
@@ -5573,7 +5556,7 @@ module.exports = (function(window, document) { "use strict";
 				});*/
 			}
 			
-			var fixNullRect = function() {
+			var fixNullRect = () => {
 				if(rect.bottom==0 && rect.top==0 && rect.left==0 && rect.right==0) {
 					
 					var scrollTop = -(document.documentElement.scrollTop || document.body.scrollTop);
@@ -6045,13 +6028,13 @@ module.exports = (function(window, document) { "use strict";
 				
 				// hum... there's an element missing here... {never happens anymore}
 				try { throw new Error() }
-				catch(ex) { setImmediate(function() { throw ex; }) }
+				catch(ex) { setImmediate(() => { throw ex; }) }
 				
 			} else if(typeof(topPaddingCut)==="number") {
 				
 				// hum... there's an element missing here... {never happens anymore}
 				try { throw new Error() }
-				catch(ex) { setImmediate(function() { throw ex; }) }
+				catch(ex) { setImmediate(() => { throw ex; }) }
 				
 			}
 			
@@ -6098,7 +6081,7 @@ module.exports = (function(window, document) { "use strict";
 						//
 						var flowInto = (
 							cssCascade.getSpecifiedStyle(element, "flow-into")
-							.filter(function(t) { return t instanceof cssSyntax.IdentifierToken })
+							.filter(t => t instanceof cssSyntax.IdentifierToken)
 						);
 						
 						var flowIntoName = flowInto[0] ? flowInto[0].toCSSString().toLowerCase() : "";
@@ -6109,7 +6092,7 @@ module.exports = (function(window, document) { "use strict";
 						
 						var flowFrom = (
 							cssCascade.getSpecifiedStyle(element, "flow-from")
-							.filter(function(t) { return t instanceof cssSyntax.IdentifierToken })
+							.filter(t => t instanceof cssSyntax.IdentifierToken)
 						);
 						
 						var flowFromName = flowFrom[0] ? flowFrom[0].toCSSString().toLowerCase() : ""; 
@@ -6188,7 +6171,7 @@ module.exports = (function(window, document) { "use strict";
 			// [3] make sure to update the region layout when all images loaded
 			//
 			window.addEventListener("load", 
-				function() { 
+				() => { 
 					var flows = document.getNamedFlows();
 					for(var i=0; i<flows.length; i++) {
 						flows[i].relayout();
@@ -6201,7 +6184,7 @@ module.exports = (function(window, document) { "use strict";
 			//
 			//
 			var lastWindowResize = 0;
-			var relayoutModifiedFlows = function() {
+			var relayoutModifiedFlows = () => {
 				
 				// specify the function did run
 				relayoutModifiedFlows.timeout = 0;
@@ -6218,7 +6201,7 @@ module.exports = (function(window, document) { "use strict";
 				}
 				
 			}
-			var hasOngoingLayouts = function() {
+			var hasOngoingLayouts = () => {
 				
 				var flows = document.getNamedFlows();
 				for(var i=0; i<flows.length; i++) {
@@ -6231,7 +6214,7 @@ module.exports = (function(window, document) { "use strict";
 				return false;
 				
 			}
-			var restartOngoingLayouts = function() {
+			var restartOngoingLayouts = () => {
 				
 				var flows = document.getNamedFlows();
 				for(var i=0; i<flows.length; i++) {
@@ -6243,7 +6226,7 @@ module.exports = (function(window, document) { "use strict";
 				
 			}
 			window.addEventListener("resize",
-				function() {
+				() => {
 					
 					// update the last layout flag
 					lastWindowResize = +new Date();
@@ -6282,7 +6265,7 @@ module.exports = (function(window, document) { "use strict";
 	enableObjectModel(window, document, cssRegions);
 	
 	return cssRegions;
-})(window, document);
+}))(window, document);
 require.define('src/css-regions/polyfill.js');
 
 ////////////////////////////////////////
@@ -6296,4 +6279,3 @@ require.define('src/requirements.js');
 window.cssPolyfills = { require: require };
 
 })();
-//# sourceMappingURL=css-regions-polyfill.js.map

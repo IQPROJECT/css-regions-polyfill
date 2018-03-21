@@ -1,4 +1,4 @@
-!(function(window, document) { "use strict";
+!(((window, document) => { "use strict";
 
 	//
 	// some code for console polyfilling
@@ -12,7 +12,7 @@
 			
 			dir: function(x) { try { 
 				
-				var elm = function(e) {
+				var elm = e => {
 					if(e.innerHTML) {
 						return {
 							tagName: e.tagName,
@@ -28,9 +28,9 @@
 					}
 				};
 				
-				var jsonify = function(o) {
+				var jsonify = o => {
 					var seen=[];
-					var jso=JSON.stringify(o, function(k,v){
+					var jso=JSON.stringify(o, (k, v) => {
 						if (typeof v =='object') {
 							if ( !seen.indexOf(v) ) { return '__cycle__'; }
 							if ( v instanceof window.Node) { return elm(v); }
@@ -69,4 +69,4 @@
 		error: function(x) { console.error(x); }
 	}
 
-})(window, document);
+}))(window, document);

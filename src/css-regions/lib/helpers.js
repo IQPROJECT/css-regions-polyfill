@@ -1,7 +1,7 @@
 //
 // this module holds the big-picture actions of the polyfill
 //
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 	
 	var domEvents = require('core:dom-events');
 	var cssSyntax = require('core:css-syntax');
@@ -36,7 +36,7 @@ module.exports = (function(window, document) { "use strict";
 		// prepares the element to become a css region
 		//
 		markNodesAsRegion: function(nodes,fast) {
-			nodes.forEach(function(node) {
+			nodes.forEach(node => {
 				node.regionOverset = 'empty';
 				node.setAttribute('data-css-region',node.cssRegionsLastFlowFromName);
 				cssRegionsHelpers.hideTextNodesFromFragmentSource([node]);
@@ -48,14 +48,14 @@ module.exports = (function(window, document) { "use strict";
 		// prepares the element to return to its normal css life
 		//
 		unmarkNodesAsRegion: function(nodes,fast) {
-			nodes.forEach(function(node) {
+			nodes.forEach(node => {
 				
 				// restore regionOverset to its natural value
 				node.regionOverset = 'fit';
 				
 				// remove the current <cssregion> tag
 				try { node.cssRegionsWrapper && node.removeChild(node.cssRegionsWrapper); } 
-				catch(ex) { setImmediate(function() { throw ex })}; 
+				catch(ex) { setImmediate(() => { throw ex })}; 
 				node.cssRegionsWrapper = undefined;
 				delete node.cssRegionsWrapper;
 				
@@ -497,7 +497,7 @@ module.exports = (function(window, document) { "use strict";
 						}
 						
 						// now, let's work on ::after and ::before
-						var importPseudo = function(node1,node2,pseudo) {
+						var importPseudo = (node1, node2, pseudo) => {
 							
 							//
 							// we'll need to use getSpecifiedStyle here as the pseudo thing is slow
@@ -616,4 +616,4 @@ module.exports = (function(window, document) { "use strict";
 	
 	return cssRegionsHelpers;
 	
-})(window, document);
+}))(window, document);

@@ -40,13 +40,13 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		};
 		
 		// this function is used to work with dom event streams
-		var This=this; This.update = function(stream) {
+		var This=this; This.update = stream => {
 			stream.schedule(This.update); This.relayout();
 		};
 		
 		// register to style changes already
 		This.lastStylesheetAdded = 0;
-		cssCascade.addEventListener('stylesheetadded', function() {
+		cssCascade.addEventListener('stylesheetadded', () => {
 			if(This.lastStylesheetAdded - Date() > 100) {
 				This.lastStylesheetAdded = +Date();
 				This.relayout();
@@ -103,9 +103,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		var treeWalker = document.createTreeWalker(
 			document.documentElement,
 			NodeFilter.SHOW_ELEMENT,
-			function(node) { 
-				return (currentNodeIndex = content.indexOf(node)) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; 
-			},
+			node => (currentNodeIndex = content.indexOf(node)) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP,
 			false
 		); 
 		
@@ -134,9 +132,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		var treeWalker = document.createTreeWalker(
 			document.documentElement,
 			NodeFilter.SHOW_ELEMENT,
-			function(node) { 
-				return regions.indexOf(node) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; 
-			},
+			node => regions.indexOf(node) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
 			false
 		);
 		
@@ -245,7 +241,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		if(This.relayoutScheduled) { return; }
 		if(This.relayoutInProgress) { This.restartLayout=true; return; }
 		This.relayoutScheduled = true;
-		requestAnimationFrame(function() { This._relayout() });
+		requestAnimationFrame(() => { This._relayout() });
 		
 	}
 
@@ -284,8 +280,8 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 			//
 			
 			// detect elements being removed of the document
-			This.regions = This.regions.filter(function(e) { return document.documentElement.contains(e); })
-			This.content = This.content.filter(function(e) { return document.documentElement.contains(e); })
+			This.regions = This.regions.filter(e => document.documentElement.contains(e))
+			This.content = This.content.filter(e => document.documentElement.contains(e))
 			
 			// cleanup previous layout
 			cssRegionsHelpers.unmarkNodesAsRegion(This.lastRegions); This.lastRegions = This.regions.slice(0);
@@ -390,7 +386,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 					} else {
 						// the other browsers don't get this as acurately
 						// but that shouldn't be that of an issue for 99% of the cases
-						setImmediate(function() {
+						setImmediate(() => {
 							This.addEventListenersTo(This.content);
 						});
 					}
@@ -404,8 +400,8 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 						
 						// before doing anything, let's check our stuff is consistent
 						var isBuggy = false;
-						isBuggy = isBuggy || This.regions.some(function(e) { return !document.documentElement.contains(e); })
-						isBuggy = isBuggy || This.content.some(function(e) { return !document.documentElement.contains(e); })
+						isBuggy = isBuggy || This.regions.some(e => !document.documentElement.contains(e))
+						isBuggy = isBuggy || This.content.some(e => !document.documentElement.contains(e))
 						
 						if(isBuggy) {
 							
@@ -416,7 +412,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 						} else {
 							
 							// if it was okay, let's fire some event
-							This.lastEventRAF = requestAnimationFrame(function() {
+							This.lastEventRAF = requestAnimationFrame(() => {
 							
 								// TODO: only fire when necessary but...
 								This.dispatchEvent('regionfragmentchange');
@@ -449,12 +445,12 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 			
 			// sometimes IE fails for no valid reason 
 			// (other than the page is still loading)
-			setImmediate(function() { throw ex; });
+			setImmediate(() => { throw ex; });
 			
 			// but we cannot accept to fail, so we need to try again
 			// until we finish a complete layout pass...
 			This.failedLayoutCount++;
-			if(This.failedLayoutCount<7) {requestAnimationFrame(function() { This._relayout() });}
+			if(This.failedLayoutCount<7) {requestAnimationFrame(() => { This._relayout() });}
 			else {This.failedLayoutCount=0; This.relayoutScheduled=false; This.relayoutInProgress=false; This.restartLayout=false; }
 			
 		}
@@ -479,7 +475,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 	cssRegions.Flow.prototype.addEventListenersTo = function(nodes) {
 		var This=this; if(nodes instanceof Element) { nodes=[nodes] }
 		
-		nodes.forEach(function(element) {
+		nodes.forEach(element => {
 			if(!element.cssRegionsEventStream) {
 				element.cssRegionsEventStream = new ES.DOMUpdateEventStream({target: element});
 				element.cssRegionsEventStream.schedule(This.update);
@@ -491,7 +487,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 	cssRegions.Flow.prototype.removeEventListenersOf = function(nodes) {
 		var This=this; if(nodes instanceof Element) { nodes=[nodes] }
 		
-		nodes.forEach(function(element) {
+		nodes.forEach(element => {
 			if(element.cssRegionsEventStream) {
 				element.cssRegionsEventStream.dispose();
 				delete element.cssRegionsEventStream;
@@ -542,15 +538,13 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		
 	}
 
-	cssRegions.NamedFlowCollection.prototype.namedItem = function(k) {
-		return cssRegions.flows[k] || (cssRegions.flows[k]=new cssRegions.Flow(k));
-	}
+	cssRegions.NamedFlowCollection.prototype.namedItem = k => cssRegions.flows[k] || (cssRegions.flows[k]=new cssRegions.Flow(k))
 
 
 	//
 	// this helper creates the required methods on top of the DOM {ie: public exports}
 	//
-	cssRegions.enablePolyfillObjectModel = function() {
+	cssRegions.enablePolyfillObjectModel = () => {
 		
 		//
 		// DOCUMENT INTERFACE
@@ -559,7 +553,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		//
 		// returns a static list of active named flows
 		//
-		document.getNamedFlows = function() {
+		document.getNamedFlows = () => {
 				
 			var c = new cssRegions.NamedFlowCollection(); var flows = cssRegions.flows;
 			for(var flowName in cssRegions.flows) {
@@ -581,7 +575,7 @@ module.exports = (function(window, document, cssRegions) { "use strict";
 		//
 		// returns a live object for any named flow
 		//
-		document.getNamedFlow = function(flowName) {
+		document.getNamedFlow = flowName => {
 				
 			var flows = cssRegions.flows;
 			return (flows[flowName] || (flows[flowName]=new cssRegions.NamedFlow(flowName)));

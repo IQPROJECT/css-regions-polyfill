@@ -11,7 +11,7 @@
 ////                                                         ////
 /////////////////////////////////////////////////////////////////
 
-module.exports = (function(window, document) { "use strict";
+module.exports = (((window, document) => { "use strict";
 
 	// import dependencies
 	var eventStreams = require('dom-experimental-event-streams'),
@@ -47,7 +47,7 @@ module.exports = (function(window, document) { "use strict";
 			currentElms = newElms.slice(0); temps=null;
 			
 			// first let's clear all elements that have been removed from the document
-			oldElms = oldElms.filter(function(e) {
+			oldElms = oldElms.filter(e => {
 				
 				// check whether the current element is still there
 				var isStillInDocument = (
@@ -63,7 +63,7 @@ module.exports = (function(window, document) { "use strict";
 				} else {
 					
 					// DELETE: raise onremoved, pop old elements
-					try { handler.onremoved && handler.onremoved(e); } catch(ex) { setImmediate(function() {throw ex})}
+					try { handler.onremoved && handler.onremoved(e); } catch(ex) { setImmediate(() => {throw ex})}
 					return false;
 					
 				}
@@ -84,13 +84,13 @@ module.exports = (function(window, document) { "use strict";
 				} else if (el2 && /*el1 is after el2*/(!el1||(el2.compareDocumentPosition(el1) & (1|2|8|32))===0)) {
 					
 					// INSERT: raise onadded, pop new elements
-					try { handler.onadded && handler.onadded(el2); } catch(ex) { setImmediate(function() {throw ex})}
+					try { handler.onadded && handler.onadded(el2); } catch(ex) { setImmediate(() => {throw ex})}
 					el2 = newElms.pop();
 					
 				} else {
 				
 					// DELETE: raise onremoved, pop old elements
-					try { handler.onremoved && handler.onremoved(el1); } catch(ex) { setImmediate(function() {throw ex})}
+					try { handler.onremoved && handler.onremoved(el1); } catch(ex) { setImmediate(() => {throw ex})}
 					el1 = oldElms.pop();
 					
 				}
@@ -210,4 +210,4 @@ module.exports = (function(window, document) { "use strict";
 	
 	return querySelectorLive;
 	
-})(window, document);
+}))(window, document);
